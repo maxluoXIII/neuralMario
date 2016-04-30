@@ -1,8 +1,35 @@
 -- neuralMario by Maxiwell Luo, Srisri Soundararajan, and Shahzar Rizvi
 -- For the fourth quarter project of Computer Science Topics 2015-2016 taught by Dr. Lopykinski
 
---[[ Until the ending commnet, the following code was copied from SethBling's MarI/O.
+--[[ Until the ending comment, the following code was copied from SethBling's MarI/O.
 		This code was copied because retrieving inputs from the emulator is out of the scope of this project.--]]
+
+BoxRadius = 6
+InputSize = (BoxRadius*2+1)*(BoxRadius*2+1)
+
+Inputs = InputSize+1
+Outputs = #ButtonNames
+
+Population = 300
+DeltaDisjoint = 2.0
+DeltaWeights = 0.4
+DeltaThreshold = 1.0
+
+StaleSpecies = 15
+
+MutateConnectionsChance = 0.25
+PerturbChance = 0.90
+CrossoverChance = 0.75
+LinkMutationChance = 2.0
+NodeMutationChance = 0.50
+BiasMutationChance = 0.40
+StepSize = 0.1
+DisableMutationChance = 0.4
+EnableMutationChance = 0.2
+
+TimeoutConstant = 20
+
+MaxNodes = 1000000
 
 function getPositions()
         if gameinfo.getromname() == "Super Mario World (USA)" then
@@ -138,4 +165,20 @@ function getInputs()
 end
 
 --[[ The code above is copied from SethBling's MarI/O --]]
+
+
+
+function newNeuron()
+
+end
+
+function newLink()
+	local link = {};
+	link.in = 0;
+	link.in = 0;
+	link.weight = 0.0;
+	link.number = 0;
+end
+
+
 
