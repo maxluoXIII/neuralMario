@@ -3,6 +3,8 @@
 
 --[[ Until the ending comment, the following code was copied from SethBling's MarI/O.
 		This code was copied because retrieving inputs from the emulator is out of the scope of this project.--]]
+Filename = "save.state";
+ButtonNames =
 
 BoxRadius = 6
 InputSize = (BoxRadius*2+1)*(BoxRadius*2+1)
@@ -179,6 +181,7 @@ function newNeuron()
 	neuron.activationResponse = 0.0;
 	neuron.splitX = 0.0;
 	neuron.splitY = 0.0;
+	neuron.incoming = {};
 	return neuron;
 end
 
@@ -197,11 +200,28 @@ function newGenome()
 	local genome = {};
 	genome.neurons = {};
 	genome.links = {};
+	genome.network = {};
 	genome.rawFitness = 0.0;
 	genome.adjustedFitness = 0.0;
 	genome.amountToSpawn = 0.0;
 	genome.numInputs = 0;
 	genome.numOutputs = 0;
 	genome.species = 0;
+	return genome;
+end
+
+function createNetwork(genome)
+	local network = {};
+	network.neurons = {};
+	for i = 1, Inputs do
+		network.neuron[i] = newNeuron();
+	end
+
+	for i = 1, Outputs do
+		network.neuron[MaxNodes + i] = newNeuron();
+	end
+
+
+
 end
 
