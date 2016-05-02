@@ -166,19 +166,42 @@ end
 
 --[[ The code above is copied from SethBling's MarI/O --]]
 
-
+function sigmoid(x)
+	return 1 / (1 + math.exp(-4.9 * x));
+end
 
 function newNeuron()
-
+	local neuron = {};
+	neuron.id = 0;
+	neuron.neuronType = -1;
+	-- input = 0, hidden = 1, output = 2, bias = 3
+	neuron.isRecurrent = false;
+	neuron.activationResponse = 0.0;
+	neuron.splitX = 0.0;
+	neuron.splitY = 0.0;
+	return neuron;
 end
 
 function newLink()
 	local link = {};
 	link.in = 0;
-	link.in = 0;
+	link.out = 0;
 	link.weight = 0.0;
-	link.number = 0;
+	link.id = 0;
+	link.enabled = true;
+	link.isRecurrent = false;
+	return link;
 end
 
-
+function newGenome()
+	local genome = {};
+	genome.neurons = {};
+	genome.links = {};
+	genome.rawFitness = 0.0;
+	genome.adjustedFitness = 0.0;
+	genome.amountToSpawn = 0.0;
+	genome.numInputs = 0;
+	genome.numOutputs = 0;
+	genome.species = 0;
+end
 
