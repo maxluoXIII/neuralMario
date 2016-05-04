@@ -33,6 +33,7 @@ TimeoutConstant = 20;
 
 MaxNodes = 1000000;
 
+-- Finds the positions of things on the screen at one moment??
 function getPositions()
         if gameinfo.getromname() == "Super Mario World (USA)" then
                 marioX = memory.read_s16_le(0x94);
