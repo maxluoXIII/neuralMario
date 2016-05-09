@@ -244,3 +244,40 @@ function createNetwork(genome)
 
 end
 
+function evaluateNetwork(network, inputs)
+	table.insert(inputs, 1);
+	if #inputs ~= Inputs then
+		console.writeline("Inputs don't match");
+	end
+
+	for local i = 1, #network.neurons do
+		local sum = 0;
+		for local j = 1, #network.neurons[i].incoming do
+			sum = sum + network.neurons[i].incoming[j].weight * network.neurons[i].incoming[j].enter.value;
+		end
+
+		if #network.neurons[i].incoming > 0 then
+			network.neurons[i].value = sigmoid(sum);
+		end
+	end
+
+	local outputs = {};
+	for i = 1, Outputs do
+		if network.neurons[MaxNodes + i].value > .5 then
+			outputs[ButtonNames[i]] = true;
+		else
+			outputs[ButtonNames[i]] = false;
+		end
+	end
+
+	return outputs;
+end
+
+
+
+form = form.newform(200, 260, "Fitness");
+maxFitnessLabel = form.label(form, "Max Fitness: "
+
+while true do
+
+end

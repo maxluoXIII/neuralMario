@@ -31,6 +31,8 @@ buttons = { };
 buttons["Right"] = true;
 buttons["A"] = true;
 
+testForm = forms.newform(200, 260, "Test");
+
 while true do
 	if buttons["A"] == true then
 		buttons["A"] = false;
