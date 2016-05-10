@@ -202,12 +202,21 @@ function newGenome()
 	genome.neurons = {};
 	genome.links = {};
 	genome.network = {};
+	genome.maxneuron = 0;
 	genome.rawFitness = 0.0;
 	genome.adjustedFitness = 0.0;
 	genome.amountToSpawn = 0.0;
 	genome.numInputs = 0;
 	genome.numOutputs = 0;
 	genome.species = 0;
+	genome.mutationRates = {};
+	genome.mutationRates["connections"] = MutateConnectionsChance;
+	genome.mutationRates["link"] = LinkMutationChance;
+	genome.mutationRates["bias"] = BiasMutationChance;
+	genome.mutationRates["node"] = NodeMutationChance;
+	genome.mutationRates["enable"] = EnableMutationChance;
+	genome.mutationRates["disable"] = DisableMutationChance;
+	genome.mutationRates["step"] = StepSize;
 	return genome;
 end
 
