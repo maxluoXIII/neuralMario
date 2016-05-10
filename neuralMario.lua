@@ -282,6 +282,20 @@ function evaluateNetwork(network, inputs)
 	return outputs;
 end
 
+function weightMutate(genome)
+	for local i = 1, #genome.links do
+		if math.random() < PerturbChance then
+			genome.link[i] = genome.link[i] + math.random() * 0.2 - 0.1;
+		else
+			genome.link[i] = math.random() * 4 - 2;
+		end
+	end
+end
+
+function addLinkMutate(genome)
+
+end
+
 while true do
 
 end
