@@ -273,11 +273,6 @@ function evaluateNetwork(network, inputs)
 	return outputs;
 end
 
-
-
-form = form.newform(200, 260, "Fitness");
-maxFitnessLabel = form.label(form, "Max Fitness: "
-
 while true do
 
 end
