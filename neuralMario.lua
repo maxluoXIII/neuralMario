@@ -292,9 +292,63 @@ function weightMutate(genome)
 	end
 end
 
+function containsLink(links, link)
+	for i = 1, #links do
+		if links[i].enter == link.enter and links[i].out = link.out then
+			return true;
+		end
+	end
+	return false;
+end
+
+function randomNeuron(links, includeInputs)
+	local neurons = {};
+	if includeInputs then
+		for i = 1, Inputs do
+			neurons[i] = true;
+		end
+	end
+
+	for i = 1, Outputs do
+		neurons[MaxNodes + i] = true;
+	end
+
+	for i = 1, #links do
+		if links[i].enter > Inputs then
+			neurons[links[i].enter] = true;
+		end
+		if links[i].out > Inputs then
+			neurons[links[i].out] = true;
+		end
+	end
+
+	local count = 0;
+
+	for _, _ in pairs(neurons) do
+		count = count + 1;
+	end
+
+	count = random(1, count);
+
+	for key, value in pairs(neurons) do
+		count = count - 1;
+		if count == 0 then
+			return key;
+		end
+	end
+	return 0;
+end
+
 function addLinkMutate(genome)
+	local neuron1 = randomNeuron(genome.links, true);
+	local neuron2 = randomNeuron(genome.links, false);
+end
+
+function mutate(genome)
 
 end
+
+
 
 while true do
 
