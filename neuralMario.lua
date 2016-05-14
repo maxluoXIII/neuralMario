@@ -229,6 +229,15 @@ function newGenome()
 	return genome;
 end
 
+function newSpecies()
+	local species = {};
+	species.genomes{};
+	species.topFitness = 0;
+	species.avgFitness = 0;
+	species.staleness = 0;
+	return species;
+end
+
 function newPool()
 	local pool = {};
 	pool.species = {};
@@ -490,11 +499,53 @@ function mutate(genome)
 	end
 end
 
-function disjointExcess(genes1, genes2)
+function disjointExcess(links1, links2)
 	local linkIds1 = {};
-	for i = 1, #genes1 do
-
+	for i = 1, #links1 do
+		linkIds1[links1[i].id] = true;
 	end
+
+	local linkIds2 = {};
+	for i = 1, #links2 do
+		linkIds2[links1[i].id] = true;
+	end
+
+	local disjointExcessLinks = 0;
+	for i = 1, #links1 do
+		if not linkIds2[links1[i].id] then
+			disjointExcessLinks = disjointExcessLinks + 1;
+		end
+	end
+
+	for i = 1, #links2 do
+		if not linkIds1[links2[i].id] then
+			disjointExcessLinks = disjointExcessLinks + 1;
+		end
+	end
+
+	return disjointExcessGenes / math.max(#links1, #links2);
+end
+
+function avgWeightDifference(links1, links2)
+	local linkIds2 = {};
+	for i = 1, #links2 do
+		linkIds2[links2[i].id] = links2[i];
+	end
+
+	local difference = 0.0;
+	local count = 0;
+	for i = 1, #links1 do
+		if linkIds2[links1[i].id] ~= nil then
+			difference = difference + math.abs(link1[i].weight - linkIds2[link1[i].id].weight);
+			count = count + 1;
+		end
+	end
+
+	return difference / count;
+end
+
+function sameSpecies(genome1, genome2)
+	return DeltaDisjoint * disjointExcess(genome1.links, genome2.links) + DeltaWeights * avgWeightDifference(genome1.links, genome2.links) < DeltaThreshold;
 end
 
 function basicGenome()
