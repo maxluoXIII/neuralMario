@@ -230,6 +230,22 @@ function newGenome()
 	return genome;
 end
 
+function copyGenome(genome)
+	local copy = newGenome();
+
+	for i = 1, #genome.links do
+		table.insert(copy.links, copyLink(genome.links[i]));
+	end
+
+	copy.maxneuron = genome.maxneuron;
+
+	for mutation, rate in pairs(genome.mutationRates) do
+		copy.mutationRates[mutation] = rate;
+	end
+
+	return copy;
+end
+
 function newSpecies()
 	local species = {};
 	species.genomes{};
@@ -529,6 +545,17 @@ function crossover(genome1, genome2)
 	return child;
 end
 
+function breedChild(species)
+	local child = {};
+	if math.random() < CrossoverChance then
+		child = crossover(species.genomes[math.random(#species.genomes)], species.genomes[math.random(#species.genomes)]);
+	else
+		child = copyGenome(species.genomes[math.random(#species.genomes)]);
+	end
+	mutate(child);
+	return child;
+end
+
 function disjointExcess(links1, links2)
 	local linkIds1 = {};
 	for i = 1, #links1 do
@@ -576,8 +603,4 @@ end
 
 function sameSpecies(genome1, genome2)
 	return DeltaDisjoint * disjointExcess(genome1.links, genome2.links) + DeltaWeights * avgWeightDifference(genome1.links, genome2.links) < DeltaThreshold;
-end
-
-function basicGenome()
-	local genome = newGenome();
 end
