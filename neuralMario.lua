@@ -226,6 +226,7 @@ function newGenome()
 	genome.mutationRates["enable"] = EnableMutationChance;
 	genome.mutationRates["disable"] = DisableMutationChance;
 	genome.mutationRates["step"] = StepSize;
+	genome.globalRank = 0;
 	return genome;
 end
 
@@ -408,7 +409,7 @@ function addNeuronMutate(genome)
 
 	genome.maxneuron = genome.maxneuron + 1;
 
-	local replace = genome.links[math.random(1, #genome.links)];
+	local replace = genome.links[math.random(#genome.links)];
 	if not replace.enabled then
 		return
 	end
@@ -440,14 +441,14 @@ function toggleEnableMutate(genome, enable)
 		return
 	end
 
-	local gene = toToggle[math.random(1, #toToggle)];
+	local gene = toToggle[math.random(#toToggle)];
 	gene.enabled = not gene.enabled;
 end
 
 function mutate(genome)
 	--Change mutation rates
 	for mutation, rate in pairs(genome.mutationRates) do
-		if math.random(1, 2) == 1 then
+		if math.random(2) == 1 then
 			genome[mutation] = .95 * rate; -- 95/100
 		else
 			genome[mutation] = 1.05263 * rate; -- 100/95
@@ -497,6 +498,35 @@ function mutate(genome)
 		end
 		p = p - 1;
 	end
+end
+
+function crossover(genome1, genome2)
+	if genome1.fitness < genome2.fitness then
+		genome1, genome2 = genome2, genome1;
+	end
+
+	local linkIds2 = {};
+	for i = 1, #genome2.links do
+		linkIds2[genome2.links[i].id] = genome2.links[i];
+	end
+
+	local child = newGenome();
+
+	for i = 1, #genome1.genes do
+		if linksIds2[genome1.genes[i].id] ~= nil and math.random(2) == 1 and linksIds2[genome1.genes[i].id].enabled == true then
+			table.insert(child.genes, linksIds2[genome1.genes[i].id]);
+		else
+			table.insert(child.genes, genome1.genes[i]);
+		end
+	end
+
+	child.maxneuron = math.max(genome1.maxneuron, genome2.maxneuron);
+
+	for mutation, rate in pairs(genome1.mutationRates) do
+		child.mutationRates[mutation] = rate;
+	end
+
+	return child;
 end
 
 function disjointExcess(links1, links2)
