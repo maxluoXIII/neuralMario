@@ -193,7 +193,16 @@ function newLink()
 	link.weight = 0.0;
 	link.id = 0;
 	link.enabled = true;
-	link.isRecurrent = false;
+	return link;
+end
+
+function copyLink(toCopy)
+	local link = newLink();
+	link.enter = toCopy.enter;
+	link.out = toCopy.out;
+	link.weight = toCopy.weight;
+	link.id = toCopy.id;
+	link.enabled = toCopy.enabled;
 	return link;
 end
 
@@ -218,6 +227,23 @@ function newGenome()
 	genome.mutationRates["disable"] = DisableMutationChance;
 	genome.mutationRates["step"] = StepSize;
 	return genome;
+end
+
+function newPool()
+	local pool = {};
+	pool.species = {};
+	pool.generation = 0;
+	pool.innovation = Ouuputs;
+	pool.currentSpecies = 1;
+	pool.currentGenome = 1;
+	pool.currentFrame = 0;
+	pool.maxFitness = 0;
+	return pool;
+end
+
+function initializePool()
+	pool = newPool(); -- the entire population (all generations)
+
 end
 
 function createNetwork(genome)
@@ -259,9 +285,9 @@ function evaluateNetwork(network, inputs)
 		console.writeline("Inputs don't match");
 	end
 
-	for local i = 1, #network.neurons do
+	for i = 1, #network.neurons do
 		local sum = 0;
-		for local j = 1, #network.neurons[i].incoming do
+		for j = 1, #network.neurons[i].incoming do
 			sum = sum + network.neurons[i].incoming[j].weight * network.neurons[i].incoming[j].enter.value;
 		end
 
@@ -283,9 +309,9 @@ function evaluateNetwork(network, inputs)
 end
 
 function weightMutate(genome)
-	for local i = 1, #genome.links do
+	for i = 1, #genome.links do
 		if math.random() < PerturbChance then
-			genome.link[i] = genome.link[i] + math.random() * 0.2 - 0.1;
+			genome.link[i] = genome.link[i] + math.random() * step * 2 - step;
 		else
 			genome.link[i] = math.random() * 4 - 2;
 		end
@@ -294,7 +320,7 @@ end
 
 function containsLink(links, link)
 	for i = 1, #links do
-		if links[i].enter == link.enter and links[i].out = link.out then
+		if links[i].enter == link.enter and links[i].out == link.out then
 			return true;
 		end
 	end
@@ -339,17 +365,138 @@ function randomNeuron(links, includeInputs)
 	return 0;
 end
 
-function addLinkMutate(genome)
+function newInnovation()
+	pool.innovation = pool.innovation + 1;
+	return pool.innovation;
+end
+
+function addLinkMutate(genome, forceBias)
 	local neuron1 = randomNeuron(genome.links, true);
 	local neuron2 = randomNeuron(genome.links, false);
+
+	local nLink = newLink();
+	nLink.enter = neuron1;
+	nLink.out = neuron2;
+
+	if forceBias then
+		nLink.enter = Inputs; -- Set it to the bias node
+	end
+
+	if containsLink(genome.links, link) then
+		return;
+	end
+
+	nLink.id = newInnovation();
+
+	nLink.weight = math.random() * 4 - 2;
+	table.insert(genome.links, nLink);
+end
+
+function addNeuronMutate(genome)
+	if #genome.links == 0 then
+		return -- nowhere to add a node
+	end
+
+	genome.maxneuron = genome.maxneuron + 1;
+
+	local replace = genome.links[math.random(1, #genome.links)];
+	if not replace.enabled then
+		return
+	end
+	replace.enabled = false;
+
+	local nLink1 = copyLink(replace);
+	nLink1.out = neuron.maxneuron;
+	nLink1.weight = 1.0;
+	nLink1.enabled = true;
+	nLink1.innovation = newInnovation();
+	table.insert(genome.links, nLink1);
+
+	local nLink2 = copyLink(replace);
+	nLink2.enter = neuron.maxneuron;
+	nLink2.enabled = true;
+	nLink2.innovation = newInnovation();
+	table.insert(genome.links, nLink2);
+end
+
+function toggleEnableMutate(genome, enable)
+	local toToggle = {};
+	for _, gene in pairs(genome.links) do
+		if gene.enabled == enable then
+			table.insert(toToggle, gene)
+		end
+	end
+
+	if #toToggle == 0 then
+		return
+	end
+
+	local gene = toToggle[math.random(1, #toToggle)];
+	gene.enabled = not gene.enabled;
 end
 
 function mutate(genome)
+	--Change mutation rates
+	for mutation, rate in pairs(genome.mutationRates) do
+		if math.random(1, 2) == 1 then
+			genome[mutation] = .95 * rate; -- 95/100
+		else
+			genome[mutation] = 1.05263 * rate; -- 100/95
+		end
+	end
 
+	if math.random() < genome.mutationRates["connections"] then
+		pointMutate(genome);
+	end
+
+	local p = genome.mutationRates["link"];
+	while p > 0 do
+		if math.random() < p then
+			addLinkMutate(genome, false);
+		end
+		p = p - 1;
+	end
+
+	p = genome.mutationRates["bias"];
+	while p > 0 do
+		if math.random() < p then
+			addLinkMutate(genome, true);
+		end
+		p = p - 1;
+	end
+
+	p = genome.mutationRates["node"];
+	while p > 0 do
+		if math.random() < p then
+			addNeuronMutate(genome);
+		end
+		p = p - 1;
+	end
+
+	p = genome.mutationRates["enable"];
+	while p > 0 do
+		if math.random() < p then
+			toggleEnableMutate(genome, true);
+		end
+		p = p - 1;
+	end
+
+	p = genome.mutationRates["disable"];
+	while p > 0 do
+		if math.random() < p then
+			toggleEnableMutate(genome, false);
+		end
+		p = p - 1;
+	end
 end
 
+function disjointExcess(genes1, genes2)
+	local linkIds1 = {};
+	for i = 1, #genes1 do
 
+	end
+end
 
-while true do
-
+function basicGenome()
+	local genome = newGenome();
 end
